@@ -35,7 +35,7 @@ const App = () => {
 
   return (
     <>
-      {loading ? (
+      {loading || !data?.name ? (
         <Loader />
       ) : (
         <InitialPage data={data} setRefresh={() => setRefresh(String(new Date()))} />

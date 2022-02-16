@@ -1,25 +1,47 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 
-function App() {
+import { Loader } from './components/Loader'
+
+import InitialPage from './pages/initial'
+
+const App = () => {
+  const [data, setData] = useState({})
+  const [refresh, setRefresh] = useState('')
+  const [loading, setLoading] = useState(true)
+
+  const showPosition = async (position) => {
+    const result = await axios.get(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&units=metric&lang=pt_br&appid=${process.env.REACT_APP_KEY_WEATHER_MAP}`)
+
+    setData(result.data)
+  }
+
+  const getLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(showPosition);
+    } else {
+      console.log("não foi possivel acessar a geolocalização")
+    }
+  }
+
+  useEffect(() => {
+    setLoading(true)
+    getLocation()
+    setTimeout(() => {
+      setLoading(false)
+    }, 900)
+  }, [refresh])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <>
+      {loading ? (
+        <Loader />
+      ) : (
+        <InitialPage data={data} setRefresh={() => setRefresh(String(new Date()))} />
+      )}
+    </>
+  )
 }
 
 export default App;
